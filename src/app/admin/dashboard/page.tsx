@@ -34,56 +34,65 @@ export default async function AdminDashboardPage() {
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
 
-  const [
-    totalStudents,
-    totalTeachers,
-    totalClasses,
-    todayAttendance,
-    feeAggregates,
-    recentActivities,
-    classesSummary,
-  ] = await Promise.all([
-    prisma.student.count({ where: { status: "ACTIVE" } }),
-    prisma.teacher.count({ where: { status: "ACTIVE" } }),
-    prisma.class.count(),
-    prisma.attendance.groupBy({
-      by: ["status"],
-      where: {
-        date: { gte: today, lt: tomorrow },
-      },
-      _count: true,
-    }),
-    prisma.fee.aggregate({
-      _sum: { amount: true, paidAmount: true },
-    }),
-    prisma.activityLog.findMany({
-      take: 6,
-      orderBy: { createdAt: "desc" },
-      select: {
-        id: true,
-        details: true,
-        createdAt: true,
-        user: { select: { name: true, role: true } },
-      },
-    }),
-    prisma.class.findMany({
-      select: {
-        id: true,
-        name: true,
-        section: true,
-        _count: {
-          select: { students: true },
-        },
-      },
-    }),
+  // Batch 1: Primary counts (uses max 3 pooled connections)
+  const [totalStudents, totalTeachers, totalClasses] = await Promise.all([
+    prisma.student.count({ where: { status: "ACTIVE" } }).catch(() => 0),
+    prisma.teacher.count({ where: { status: "ACTIVE" } }).catch(() => 0),
+    prisma.class.count().catch(() => 0),
   ]);
 
-  const totalExpected = feeAggregates._sum.amount || 0;
-  const totalCollected = feeAggregates._sum.paidAmount || 0;
+  // Batch 2: Aggregations (uses max 2 pooled connections)
+  const [todayAttendance, feeAggregates] = await Promise.all([
+    prisma.attendance
+      .groupBy({
+        by: ["status"],
+        where: {
+          date: { gte: today, lt: tomorrow },
+        },
+        _count: true,
+      })
+      .catch(() => [] as { status: any; _count: number }[]),
+    prisma.fee
+      .aggregate({
+        _sum: { amount: true, paidAmount: true },
+      })
+      .catch(() => ({ _sum: { amount: 0, paidAmount: 0 } })),
+  ]);
+
+  // Batch 3: Activity & Class Summary (uses max 2 pooled connections)
+  const [recentActivities, classesSummary] = await Promise.all([
+    prisma.activityLog
+      .findMany({
+        take: 6,
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          details: true,
+          createdAt: true,
+          user: { select: { name: true, role: true } },
+        },
+      })
+      .catch(() => []),
+    prisma.class
+      .findMany({
+        select: {
+          id: true,
+          name: true,
+          section: true,
+          _count: {
+            select: { students: true },
+          },
+        },
+      })
+      .catch(() => []),
+  ]);
+
+  const totalExpected = feeAggregates?._sum?.amount || 0;
+  const totalCollected = feeAggregates?._sum?.paidAmount || 0;
   const pendingFees = Math.max(0, totalExpected - totalCollected);
 
-  const presentCount = todayAttendance.find((a) => a.status === "PRESENT")?._count || 0;
-  const totalMarked = todayAttendance.reduce((acc, curr) => acc + curr._count, 0);
+  const presentCount = todayAttendance?.find?.((a) => a.status === "PRESENT")?._count || 0;
+  const totalMarked = (todayAttendance || []).reduce((acc, curr) => acc + (curr._count || 0), 0);
   const attendanceRate = totalMarked > 0 ? Math.round((presentCount / totalMarked) * 100) : 100;
 
   return (

@@ -46,43 +46,53 @@ export default async function StudentDashboardPage() {
   today.setHours(0, 0, 0, 0);
 
   const [attendances, subjects, upcomingExams, results, fees] = await Promise.all([
-    prisma.attendance.findMany({
-      where: { studentId: student.id },
-      orderBy: { date: "desc" },
-      take: 10,
-    }),
-    prisma.subject.findMany({
-      where: { classId: student.classId },
-      include: {
-        teacher: {
-          include: { user: { select: { name: true, email: true } } },
+    prisma.attendance
+      .findMany({
+        where: { studentId: student.id },
+        orderBy: { date: "desc" },
+        take: 10,
+      })
+      .catch(() => []),
+    prisma.subject
+      .findMany({
+        where: { classId: student.classId },
+        include: {
+          teacher: {
+            include: { user: { select: { name: true, email: true } } },
+          },
         },
-      },
-    }),
-    prisma.exam.findMany({
-      where: {
-        classId: student.classId,
-        examDate: { gte: today },
-      },
-      orderBy: { examDate: "asc" },
-      take: 4,
-      include: {
-        subject: { select: { name: true, code: true } },
-      },
-    }),
-    prisma.result.findMany({
-      where: { studentId: student.id },
-      orderBy: { createdAt: "desc" },
-      take: 5,
-      include: {
-        exam: {
-          include: { subject: { select: { name: true, code: true } } },
+      })
+      .catch(() => []),
+    prisma.exam
+      .findMany({
+        where: {
+          classId: student.classId,
+          examDate: { gte: today },
         },
-      },
-    }),
-    prisma.fee.findMany({
-      where: { studentId: student.id },
-    }),
+        orderBy: { examDate: "asc" },
+        take: 4,
+        include: {
+          subject: { select: { name: true, code: true } },
+        },
+      })
+      .catch(() => []),
+    prisma.result
+      .findMany({
+        where: { studentId: student.id },
+        orderBy: { createdAt: "desc" },
+        take: 5,
+        include: {
+          exam: {
+            include: { subject: { select: { name: true, code: true } } },
+          },
+        },
+      })
+      .catch(() => []),
+    prisma.fee
+      .findMany({
+        where: { studentId: student.id },
+      })
+      .catch(() => []),
   ]);
 
   const totalAttendanceDays = attendances.length;

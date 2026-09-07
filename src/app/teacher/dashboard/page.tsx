@@ -56,33 +56,39 @@ export default async function TeacherDashboardPage() {
 
   const [enrolledStudentsCount, todayAttendanceForClasses, upcomingExams] =
     await Promise.all([
-      prisma.student.count({
-        where: { classId: { in: classIds }, status: "ACTIVE" },
-      }),
-      prisma.attendance.groupBy({
-        by: ["status"],
-        where: {
-          classId: { in: classIds },
-          date: { gte: today, lt: tomorrow },
-        },
-        _count: true,
-      }),
-      prisma.exam.findMany({
-        where: {
-          classId: { in: classIds },
-          examDate: { gte: today },
-        },
-        orderBy: { examDate: "asc" },
-        take: 5,
-        include: {
-          class: { select: { name: true, section: true } },
-          subject: { select: { name: true, code: true } },
-        },
-      }),
+      prisma.student
+        .count({
+          where: { classId: { in: classIds }, status: "ACTIVE" },
+        })
+        .catch(() => 0),
+      prisma.attendance
+        .groupBy({
+          by: ["status"],
+          where: {
+            classId: { in: classIds },
+            date: { gte: today, lt: tomorrow },
+          },
+          _count: true,
+        })
+        .catch(() => [] as { status: any; _count: number }[]),
+      prisma.exam
+        .findMany({
+          where: {
+            classId: { in: classIds },
+            examDate: { gte: today },
+          },
+          orderBy: { examDate: "asc" },
+          take: 5,
+          include: {
+            class: { select: { name: true, section: true } },
+            subject: { select: { name: true, code: true } },
+          },
+        })
+        .catch(() => []),
     ]);
 
   const presentCount =
-    todayAttendanceForClasses.find((a) => a.status === "PRESENT")?._count || 0;
+    (todayAttendanceForClasses || []).find((a) => a.status === "PRESENT")?._count || 0;
   const totalMarked = todayAttendanceForClasses.reduce((acc, curr) => acc + curr._count, 0);
   const attendanceRate = totalMarked > 0 ? Math.round((presentCount / totalMarked) * 100) : 100;
 
