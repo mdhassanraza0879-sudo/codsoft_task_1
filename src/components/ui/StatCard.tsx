@@ -5,7 +5,7 @@ interface StatCardProps {
   title: string;
   value: string | number;
   subtitle?: string;
-  icon: LucideIcon;
+  icon: React.ComponentType<{ className?: string }> | any;
   color?: "indigo" | "emerald" | "amber" | "rose" | "purple" | "sky";
   badge?: {
     text: string;

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { requireAuth, hashPassword } from "@/lib/auth";
-import { Prisma } from "@prisma/client";
+import { Prisma, Role, UserStatus } from "@prisma/client";
 
 export async function GET(req: NextRequest) {
   try {
@@ -129,7 +129,7 @@ export async function POST(req: NextRequest) {
       data: {
         admissionNumber: admissionNumber.trim(),
         rollNumber: rollNumber?.trim() || null,
-        classId,
+        class: { connect: { id: classId } },
         dateOfBirth: new Date(dateOfBirth),
         gender,
         phone: phone || null,
@@ -142,8 +142,8 @@ export async function POST(req: NextRequest) {
             name: name.trim(),
             email: email.toLowerCase().trim(),
             passwordHash,
-            role: "STUDENT",
-            status: "ACTIVE",
+            role: Role.STUDENT,
+            status: UserStatus.ACTIVE,
           },
         },
       },
@@ -157,7 +157,7 @@ export async function POST(req: NextRequest) {
       data: {
         userId: user!.id,
         action: "STUDENT_ENROLLED",
-        details: `Student ${name} (${admissionNumber}) enrolled in ${student.class.name}-${student.class.section}.`,
+        details: `Student ${name} (${admissionNumber}) enrolled in ${(student as any).class?.name || "Class"}-${(student as any).class?.section || ""}.`,
       },
     });
 

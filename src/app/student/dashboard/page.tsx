@@ -210,7 +210,8 @@ export default async function StudentDashboardPage() {
             {results.length > 0 ? (
               <div className="space-y-3">
                 {results.map((res) => {
-                  const pct = Math.round((res.marksObtained / res.exam.totalMarks) * 100);
+                  const totalMarks = (res.exam as any).totalMarks || res.exam.maxMarks || 100;
+                  const pct = Math.round((res.marksObtained / totalMarks) * 100);
                   return (
                     <div
                       key={res.id}
@@ -218,7 +219,7 @@ export default async function StudentDashboardPage() {
                     >
                       <div>
                         <h4 className="font-bold text-slate-900 text-sm">
-                          {res.exam.subject.name} &middot; {res.exam.title}
+                          {res.exam.subject.name} &middot; {(res.exam as any).title || res.exam.name}
                         </h4>
                         <p className="text-xs text-slate-500 mt-0.5">
                           Grade Awarded: <span className="font-semibold text-slate-800">{res.grade || "A"}</span> &middot; {res.remarks || "Satisfactory"}
@@ -226,7 +227,7 @@ export default async function StudentDashboardPage() {
                       </div>
                       <div className="text-right">
                         <span className="text-sm font-bold text-indigo-600 block">
-                          {res.marksObtained} / {res.exam.totalMarks}
+                          {res.marksObtained} / {totalMarks}
                         </span>
                         <span className="text-xs font-semibold text-slate-500">
                           {pct}%

@@ -207,7 +207,7 @@ export default async function TeacherDashboardPage() {
                     className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between"
                   >
                     <div>
-                      <h4 className="font-bold text-slate-900 text-sm">{exam.title}</h4>
+                      <h4 className="font-bold text-slate-900 text-sm">{(exam as any).title || exam.name}</h4>
                       <p className="text-xs text-slate-500 mt-0.5">
                         {exam.subject.name} &middot; Class {exam.class.name}
                       </p>
@@ -224,7 +224,7 @@ export default async function TeacherDashboardPage() {
                     </div>
                     <div className="text-right">
                       <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">
-                        Max {exam.totalMarks} pts
+                        Max {(exam as any).totalMarks || exam.maxMarks || 100} pts
                       </span>
                     </div>
                   </div>

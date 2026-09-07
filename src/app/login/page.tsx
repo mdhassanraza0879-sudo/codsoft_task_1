@@ -74,7 +74,7 @@ export default function LoginPage() {
         body: JSON.stringify({ email, password }),
       });
 
-      let result: { success?: boolean; error?: string } | null = null;
+      let result: { success?: boolean; error?: string; user?: { role?: string } } | null = null;
       try {
         result = await response.json();
       } catch {

@@ -55,34 +55,36 @@ export default async function TeacherExamsPage() {
       </div>
 
       <div className="space-y-6">
-        {exams.map((ex) => (
-          <Card key={ex.id}>
-            <CardHeader
-              title={`${ex.title} — ${ex.subject.name} (${ex.subject.code})`}
-              subtitle={`Class ${ex.class.name} - Sec ${ex.class.section} | Max Marks: ${ex.totalMarks} pts | Date: ${new Date(ex.examDate).toLocaleDateString()}`}
-            />
-            <div className="overflow-x-auto">
-              <table className="w-full text-left text-xs text-slate-600">
-                <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 uppercase tracking-wider text-[11px]">
-                  <tr>
-                    <th className="px-6 py-3">Student</th>
-                    <th className="px-6 py-3">Marks Scored</th>
-                    <th className="px-6 py-3">Percentage</th>
-                    <th className="px-6 py-3">Grade</th>
-                    <th className="px-6 py-3">Teacher Remarks</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-200">
-                  {ex.results.map((r) => {
-                    const pct = Math.round((r.marksObtained / ex.totalMarks) * 100);
-                    return (
-                      <tr key={r.id} className="hover:bg-slate-50/80">
-                        <td className="px-6 py-3 font-semibold text-slate-900">
-                          {r.student.user.name}
-                        </td>
-                        <td className="px-6 py-3 font-bold text-slate-900">
-                          {r.marksObtained} / {ex.totalMarks}
-                        </td>
+        {exams.map((ex) => {
+          const totalMarks = (ex as any).totalMarks || ex.maxMarks || 100;
+          return (
+            <Card key={ex.id}>
+              <CardHeader
+                title={`${(ex as any).title || ex.name} — ${ex.subject.name} (${ex.subject.code})`}
+                subtitle={`Class ${ex.class.name} - Sec ${ex.class.section} | Max Marks: ${totalMarks} pts | Date: ${new Date(ex.examDate).toLocaleDateString()}`}
+              />
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs text-slate-600">
+                  <thead className="bg-slate-50 text-slate-500 font-semibold border-b border-slate-200 uppercase tracking-wider text-[11px]">
+                    <tr>
+                      <th className="px-6 py-3">Student</th>
+                      <th className="px-6 py-3">Marks Scored</th>
+                      <th className="px-6 py-3">Percentage</th>
+                      <th className="px-6 py-3">Grade</th>
+                      <th className="px-6 py-3">Teacher Remarks</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200">
+                    {ex.results.map((r) => {
+                      const pct = Math.round((r.marksObtained / totalMarks) * 100);
+                      return (
+                        <tr key={r.id} className="hover:bg-slate-50/80">
+                          <td className="px-6 py-3 font-semibold text-slate-900">
+                            {r.student.user.name}
+                          </td>
+                          <td className="px-6 py-3 font-bold text-slate-900">
+                            {r.marksObtained} / {totalMarks}
+                          </td>
                         <td className="px-6 py-3 font-bold text-emerald-600">
                           {pct}%
                         </td>
@@ -101,8 +103,9 @@ export default async function TeacherExamsPage() {
               </table>
             </div>
           </Card>
-        ))}
-      </div>
+        );
+      })}
+    </div>
     </AppShell>
   );
 }

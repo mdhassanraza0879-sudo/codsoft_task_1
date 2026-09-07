@@ -49,7 +49,7 @@ export default async function AdminExamsPage() {
                   {ex.class.name} - Sec {ex.class.section}
                 </span>
               </div>
-              <h3 className="font-bold text-slate-900 text-base mt-3">{(ex as any).title || (ex as any).name || "Exam"}</h3>
+              <h3 className="font-bold text-slate-900 text-base mt-3">{(ex as any).title || ex.name || "Exam"}</h3>
               <p className="text-xs text-slate-500">{ex.subject.name}</p>
 
               <div className="mt-4 p-3 bg-slate-50 rounded-xl space-y-2 text-xs">
@@ -68,7 +68,7 @@ export default async function AdminExamsPage() {
                 </div>
                 <div className="flex items-center justify-between text-slate-600">
                   <span>Total Marks:</span>
-                  <span className="font-bold text-indigo-600">{ex.totalMarks} pts</span>
+                  <span className="font-bold text-indigo-600">{(ex as any).totalMarks || ex.maxMarks || 100} pts</span>
                 </div>
                 <div className="flex items-center justify-between text-slate-600">
                   <span>Passing Marks:</span>

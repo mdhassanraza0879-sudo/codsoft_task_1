@@ -64,15 +64,16 @@ export default async function StudentResultsPage() {
             </thead>
             <tbody className="divide-y divide-slate-200">
               {results.map((r) => {
-                const pct = Math.round((r.marksObtained / r.exam.totalMarks) * 100);
+                const totalMarks = (r.exam as any).totalMarks || r.exam.maxMarks || 100;
+                const pct = Math.round((r.marksObtained / totalMarks) * 100);
                 return (
                   <tr key={r.id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="px-6 py-4 font-semibold text-slate-900">
                       {r.exam.subject.name} ({r.exam.subject.code})
                     </td>
-                    <td className="px-6 py-4">{r.exam.title}</td>
+                    <td className="px-6 py-4">{(r.exam as any).title || r.exam.name}</td>
                     <td className="px-6 py-4 font-bold text-slate-900">
-                      {r.marksObtained} / {r.exam.totalMarks}
+                      {r.marksObtained} / {totalMarks}
                     </td>
                     <td className="px-6 py-4 font-bold text-indigo-600">{pct}%</td>
                     <td className="px-6 py-4">

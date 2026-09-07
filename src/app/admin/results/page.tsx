@@ -65,7 +65,8 @@ export default async function AdminResultsPage() {
             </thead>
             <tbody className="divide-y divide-slate-200">
               {results.map((r) => {
-                const pct = Math.round((r.marksObtained / r.exam.totalMarks) * 100);
+                const totalMarks = (r.exam as any).totalMarks || r.exam.maxMarks || 100;
+                const pct = Math.round((r.marksObtained / totalMarks) * 100);
                 return (
                   <tr key={r.id} className="hover:bg-slate-50/80 transition-colors">
                     <td className="px-6 py-4 font-semibold text-slate-900">
@@ -75,11 +76,11 @@ export default async function AdminResultsPage() {
                       {r.student.class.name} - Sec {r.student.class.section}
                     </td>
                     <td className="px-6 py-4">
-                      <div className="font-semibold text-slate-900">{r.exam.title}</div>
+                      <div className="font-semibold text-slate-900">{(r.exam as any).title || r.exam.name}</div>
                       <div className="text-[11px] text-slate-400">{r.exam.subject.name} ({r.exam.subject.code})</div>
                     </td>
                     <td className="px-6 py-4 font-bold text-slate-900">
-                      {r.marksObtained} / {r.exam.totalMarks}
+                      {r.marksObtained} / {totalMarks}
                     </td>
                     <td className="px-6 py-4 font-bold text-indigo-600">
                       {pct}%

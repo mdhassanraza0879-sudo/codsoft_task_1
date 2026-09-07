@@ -47,7 +47,7 @@ export default async function StudentExamsPage() {
               <span className="text-xs font-mono font-bold text-indigo-600 bg-indigo-50 border border-indigo-100 px-2.5 py-1 rounded-lg">
                 {ex.subject.code}
               </span>
-              <h3 className="font-bold text-slate-900 text-lg mt-3">{ex.title}</h3>
+              <h3 className="font-bold text-slate-900 text-lg mt-3">{(ex as any).title || ex.name}</h3>
               <p className="text-xs text-slate-500">{ex.subject.name}</p>
 
               <div className="mt-4 p-3.5 bg-slate-50 rounded-xl space-y-2 text-xs">
@@ -66,7 +66,7 @@ export default async function StudentExamsPage() {
                 </div>
                 <div className="flex items-center justify-between text-slate-600">
                   <span>Total Marks:</span>
-                  <span className="font-bold text-indigo-600">{ex.totalMarks} pts</span>
+                  <span className="font-bold text-indigo-600">{(ex as any).totalMarks || ex.maxMarks || 100} pts</span>
                 </div>
                 <div className="flex items-center justify-between text-slate-600">
                   <span>Passing Threshold:</span>
