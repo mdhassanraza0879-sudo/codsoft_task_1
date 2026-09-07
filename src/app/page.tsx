@@ -1,5 +1,5 @@
-import LoginPage from "./login/page";
+import { redirect } from "next/navigation";
 
 export default function HomePage() {
-  return <LoginPage />;
+  redirect("/login");
 }
