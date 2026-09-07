@@ -49,7 +49,7 @@ export default async function AdminExamsPage() {
                   {ex.class.name} - Sec {ex.class.section}
                 </span>
               </div>
-              <h3 className="font-bold text-slate-900 text-base mt-3">{ex.title}</h3>
+              <h3 className="font-bold text-slate-900 text-base mt-3">{(ex as any).title || (ex as any).name || "Exam"}</h3>
               <p className="text-xs text-slate-500">{ex.subject.name}</p>
 
               <div className="mt-4 p-3 bg-slate-50 rounded-xl space-y-2 text-xs">
