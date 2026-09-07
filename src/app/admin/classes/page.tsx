@@ -60,7 +60,7 @@ export default async function AdminClassesPage() {
                   </div>
                 </div>
                 <span className="text-xs font-semibold px-2.5 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-lg">
-                  {c.academicYear}
+                  {(c as any).Academicyear || "2026-2027"}
                 </span>
               </div>
 
